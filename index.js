@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, InteractionType } = require('discord.js');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const cron = require('node-cron'); // Add cron import here
+const fs = require('fs'); // Add fs import here
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -8,8 +10,46 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 let philosopher = 'ソクラテス'; // デフォルトの哲学者
 const ALLOWED_CHANNEL_ID = '1398975627175919617'; // 会話するチャンネルを限定
 
+const quotes = JSON.parse(fs.readFileSync('./quotes.json', 'utf8')); // Move quotes loading here
+
 client.once('ready', () => {
     console.log(`ボットの準備ができました！ ${client.user.tag}`);
+
+    // 毎日午前9時に名言を投稿
+    cron.schedule('0 9 * * *', () => {
+        const channelId = process.env.QUOTE_CHANNEL_ID;
+        if (channelId) {
+            const channel = client.channels.cache.get(channelId);
+            if (channel) {
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                channel.send(`今日の哲学者からの名言：\n\n**${randomQuote.philosopher}**\n**「${randomQuote.quote}」**\n（解説：${randomQuote.explanation}）`);
+            } else {
+                console.error(`指定されたチャンネルIDが見つかりません: ${channelId}`);
+            }
+        } else {
+            console.error('QUOTE_CHANNEL_IDが設定されていません。');
+        }
+    }, {
+        timezone: "Asia/Tokyo" // 日本時間で設定
+    });
+
+    // 毎日午後9時に名言を投稿
+    cron.schedule('0 21 * * *', () => {
+        const channelId = process.env.QUOTE_CHANNEL_ID;
+        if (channelId) {
+            const channel = client.channels.cache.get(channelId);
+            if (channel) {
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                channel.send(`今日の哲学者からの名言：\n\n**${randomQuote.philosopher}**\n**「${randomQuote.quote}」**\n（解説：${randomQuote.explanation}）`);
+            } else {
+                console.error(`指定されたチャンネルIDが見つかりません: ${channelId}`);
+            }
+        } else {
+            console.error('QUOTE_CHANNEL_IDが設定されていません。');
+        }
+    }, {
+        timezone: "Asia/Tokyo" // 日本時間で設定
+    });
 });
 
 // スラッシュコマンドの処理
@@ -31,7 +71,7 @@ client.on('messageCreate', async message => {
     if (message.channel.id !== ALLOWED_CHANNEL_ID) return; // 特定のチャンネルのみで反応
 
     // スラッシュコマンドの入力は無視する
-    if (message.content.startsWith('/')) return; 
+    if (message.content.startsWith('/')) return;
 
     const userInput = message.content;
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
