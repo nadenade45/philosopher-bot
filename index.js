@@ -75,7 +75,16 @@ client.on('messageCreate', async message => {
 
     const userInput = message.content;
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
-    const prompt = `あなたは「${philosopher}」です。以下のユーザーからのメッセージに対して、あなたの哲学的な思想や特徴的な文体を強く反映させて、日本語で応答してください.\n\nユーザーのメッセージ: "${userInput}"`;
+    const prompt = `
+あなたは哲学者「${philosopher}」の知恵を借りて応答する、思索のパートナーです。
+ユーザーの言葉をまず受け入れ、共感を示してください。
+その上で、ユーザーの発言内容に関連する「${philosopher}」の哲学的な視点や、象徴的な引用句を交えながら、穏やかに対話を深めるような応答を生成してください。
+
+決してユーザーを詰問したり、言葉尻を捉えて論破しようとしないでください。
+あなたの目的は、ユーザーとの対話を通じて、新しい気づきや思索のきっかけを共に探求することです。
+
+ユーザーのメッセージ: "${userInput}"
+`;
 
     try {
         await message.channel.sendTyping(); // 「入力中...」と表示
