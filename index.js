@@ -100,6 +100,15 @@ client.on('messageCreate', async message => {
         return;
     }
 
+    // --- ここからデバッグコード ---
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+        console.log(`API Key Loaded. Starts with: ${apiKey.substring(0, 4)}, Ends with: ${apiKey.slice(-4)}`);
+    } else {
+        console.log('API Key is NOT loaded.');
+    }
+    // --- ここまでデバッグコード ---
+
     const userInput = message.content;
     const chat = getChatSession(message.channel.id);
 
