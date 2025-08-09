@@ -15,6 +15,7 @@
     "discord-api-types": "^0.37.73",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "openai": "^5.12.2"
   }
 }
